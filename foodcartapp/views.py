@@ -1,5 +1,6 @@
 import json
 
+from rest_framework import status
 from django.http import JsonResponse
 from django.templatetags.static import static
 from rest_framework.decorators import api_view
@@ -63,29 +64,38 @@ def product_list_api(request):
 @api_view(['POST'])
 def register_order(request):
     try:
-        order = json.loads(request.body.decode())
-        product = order['products'][0]
-        product_instance = Product.objects.get(id=product['product'])
-        new_order = Order.objects.create(
-            address=order['address'],
-            name=order['firstname'],
-            surname=order['lastname'],
-            contact_phone=order['phonenumber'],
-        )
-        OrderElements.objects.create(
-            order=new_order,
-            product=product_instance,
-            product_number=product['quantity'],
-        )
+        order = request.data
+        if 'products' in order:
+            product = order['products']
+        else:
+            return Response({'error': 'Product key not presented or not list'})
+        if isinstance(product, list) and product != []:
+            product = order['products'][0]
+            product_instance = Product.objects.get(id=product['product'])
+            new_order = Order.objects.create(
+                address=order['address'],
+                name=order['firstname'],
+                surname=order['lastname'],
+                contact_phone=order['phonenumber'],
+            )
+            OrderElements.objects.create(
+                order=new_order,
+                product=product_instance,
+                product_number=product['quantity'],
+            )
+        else:
+            return Response({'error': 'Product key not presented or not list'})
     except ValueError:
-        pass
+        return Response()
     orders = Order.objects.all()
     registers_order = []
     for order in orders:
-        register_order.append({
+        registers_order.append({
             'address': order.address,
             'name': order.name,
             'surname': order.surname,
             'contact_phone': str(order.contact_phone)
         })
-    return Response(registers_order)
+    print(registers_order)
+    return Response()
+
