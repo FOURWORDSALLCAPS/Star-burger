@@ -1,10 +1,8 @@
-from phonenumber_field.phonenumber import PhoneNumber
-from phonenumber_field.validators import validate_international_phonenumber
 from django.http import JsonResponse
 from django.templatetags.static import static
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.core.exceptions import ValidationError
+from rest_framework.serializers import ValidationError, ModelSerializer
 
 from .models import Product, Order, OrderElements
 
@@ -61,53 +59,40 @@ def product_list_api(request):
     })
 
 
+class OrderElementsSerializer(ModelSerializer):
+    class Meta:
+        model = OrderElements
+        fields = ['product', 'product_number']
+
+
+class OrderSerializer(ModelSerializer):
+    products = OrderElementsSerializer(many=True)
+
+    class Meta:
+        model = Order
+        fields = ['address', 'name', 'surname', 'contact_phone', 'products']
+
+
 @api_view(['POST'])
 def register_order(request):
     try:
         order = request.data
-        if 'products' in order:
-            product = order['products']
-        else:
-            return Response({'error': 'Product key not presented or not list'})
-        if not isinstance(product, list) or product == []:
-            return Response({'error': 'Product key not presented or not list'})
-        if 'address' not in order or 'firstname' not in order or 'lastname' not in order:
-            return Response({'error': 'Order key not presented or not list'})
-
-        product = order['products'][0]
-        if 'product' not in product or 'quantity' not in product:
-            return Response({'error': 'Product key not presented or not list'})
-
-        product_instance = Product.objects.filter(id=product['product']).first()
-        if not product_instance:
-            return Response({'error': 'Invalid product ID'})
-
-        if not order['firstname']:
-            return Response({'error': 'Firstname field cannot be empty'})
-        if not order['lastname']:
-            return Response({'error': 'Lastname field cannot be empty'})
-        if not order['phonenumber']:
-            return Response({'error': 'Phonenumber field cannot be empty'})
-        if not order['address']:
-            return Response({'error': 'Address field cannot be empty'})
-        try:
-            phone_number = PhoneNumber.from_string(order['phonenumber'])
-            validate_international_phonenumber(phone_number)
-        except ValidationError:
-            return Response({'error': 'Invalid phone number'})
-
+        if not order['products']:
+            raise ValidationError('Expects products field be a list')
+        serializer = OrderSerializer(data=order)
+        serializer.is_valid(raise_exception=True)
+        product = serializer.validated_data['products'][0]
         new_order = Order.objects.create(
-            address=order['address'],
-            name=order['firstname'],
-            surname=order['lastname'],
-            contact_phone=phone_number,
+            address=serializer.validated_data['address'],
+            name=serializer.validated_data['name'],
+            surname=serializer.validated_data['surname'],
+            contact_phone=serializer.validated_data['contact_phone'],
         )
         OrderElements.objects.create(
             order=new_order,
-            product=product_instance,
-            product_number=product['quantity'],
+            product=product['product'],
+            product_number=product['product_number'],
         )
-
     except ValueError as e:
         return Response({'error': str(e)})
 
@@ -120,5 +105,4 @@ def register_order(request):
             'surname': order.surname,
             'contact_phone': str(order.contact_phone)
         })
-    print(registers_order)
-    return Response()
+    return Response(registers_order)
