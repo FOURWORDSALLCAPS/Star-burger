@@ -93,16 +93,13 @@ def register_order(request):
             product=product['product'],
             product_number=product['product_number'],
         )
+        order = {
+            'id': new_order.id,
+            'address': new_order.address,
+            'name': new_order.name,
+            'surname': new_order.surname,
+            'contact_phone': str(new_order.contact_phone),
+        }
+        return Response(order)
     except ValueError as e:
         return Response({'error': str(e)})
-
-    orders = Order.objects.all()
-    registers_order = []
-    for order in orders:
-        registers_order.append({
-            'address': order.address,
-            'name': order.name,
-            'surname': order.surname,
-            'contact_phone': str(order.contact_phone)
-        })
-    return Response(registers_order)
