@@ -62,7 +62,7 @@ def product_list_api(request):
 class OrderElementsSerializer(ModelSerializer):
     class Meta:
         model = OrderElements
-        fields = ['product', 'product_number']
+        fields = ['product', 'quantity']
 
 
 class OrderSerializer(ModelSerializer):
@@ -70,7 +70,7 @@ class OrderSerializer(ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['address', 'name', 'surname', 'contact_phone', 'products']
+        fields = ['address', 'firstname', 'lastname', 'phonenumber', 'products']
 
 
 @api_view(['POST'])
@@ -81,24 +81,27 @@ def register_order(request):
             raise ValidationError('Expects products field be a list')
         serializer = OrderSerializer(data=order)
         serializer.is_valid(raise_exception=True)
-        product = serializer.validated_data['products'][0]
+        products = serializer.validated_data['products']
         new_order = Order.objects.create(
             address=serializer.validated_data['address'],
-            name=serializer.validated_data['name'],
-            surname=serializer.validated_data['surname'],
-            contact_phone=serializer.validated_data['contact_phone'],
+            firstname=serializer.validated_data['firstname'],
+            lastname=serializer.validated_data['lastname'],
+            phonenumber=serializer.validated_data['phonenumber'],
         )
-        OrderElements.objects.create(
-            order=new_order,
-            product=product['product'],
-            product_number=product['product_number'],
-        )
+        for product in products:
+            product_obj = product['product']
+            OrderElements.objects.create(
+                order=new_order,
+                product=product_obj,
+                quantity=product['quantity'],
+                price=product_obj.price
+            )
         order = {
             'id': new_order.id,
             'address': new_order.address,
-            'name': new_order.name,
-            'surname': new_order.surname,
-            'contact_phone': str(new_order.contact_phone),
+            'firstname': new_order.firstname,
+            'lastname': new_order.lastname,
+            'phonenumber': str(new_order.phonenumber),
         }
         return Response(order)
     except ValueError as e:
