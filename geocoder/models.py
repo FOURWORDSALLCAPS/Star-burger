@@ -17,3 +17,13 @@ class GeocodeData(models.Model):
         'дата запроса к геокодеру',
         auto_now=True
     )
+
+    class Meta:
+        verbose_name = 'Данные геолокации'
+        verbose_name_plural = 'Данные геолокации'
+        unique_together = [
+            ['address']
+        ]
+
+    def __str__(self):
+        return self.address

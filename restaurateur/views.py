@@ -12,6 +12,7 @@ from django.contrib.auth import views as auth_views
 
 
 from foodcartapp.models import Product, Restaurant, Order
+from geocoder.models import GeocodeData
 
 
 class Login(forms.Form):
@@ -115,30 +116,39 @@ def view_restaurants(request):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     yandex_token = settings.YANDEX_TOKEN
-
+    geocoder = GeocodeData.objects.all()
     order_items = Order.objects.exclude(status='Завершен').order_price()
+
     for item in order_items:
         item.available_restaurants = item.process_order()
-
         item.restaurants_with_distance = []
 
         geo_client = fetch_coordinates(yandex_token, item.address)
         if geo_client is None:
             continue
 
+        geo_client_db, _ = GeocodeData.objects.get_or_create(
+            address=item.address,
+            defaults={'lat': geo_client[1], 'lon': geo_client[0]}
+        )
+
         for restaurant in item.available_restaurants:
-            geo_restaurant = fetch_coordinates(yandex_token, restaurant.address)
-            if geo_restaurant is None:
+            geo_restaurant_db = geocoder.filter(address=restaurant.address).values('lat', 'lon').first()
+            if not geo_restaurant_db or not geo_client_db:
                 continue
 
-            distance_km = round(distance.distance(geo_client, geo_restaurant).km, 3)
+            restaurant_coordinates = (geo_restaurant_db['lat'], geo_restaurant_db['lon'])
+            client_coordinates = (geo_client_db.lat, geo_client_db.lon)
+
+            distance_km = round(distance.distance(client_coordinates, restaurant_coordinates).km, 3)
 
             item.restaurants_with_distance.append({
                 'restaurant': restaurant,
                 'distance': distance_km
             })
 
-        item.restaurants_with_distance = sorted(item.restaurants_with_distance, key=lambda x: x['distance'])
+        item.restaurants_with_distance.sort(key=lambda x: x['distance'])
+
     return render(request, template_name='order_items.html', context={
         'order_items': order_items,
     })
