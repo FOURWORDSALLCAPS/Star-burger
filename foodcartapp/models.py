@@ -141,7 +141,6 @@ def validate_price(value):
 
 
 class Order(models.Model):
-
     class ChoicesStatus(models.TextChoices):
         COMPLETED = 'Завершен', 'Завершен'
         ON_MY_WAY = 'В пути', 'В пути'
@@ -170,6 +169,10 @@ class Order(models.Model):
     )
     phonenumber = PhoneNumberField(
         'контактный телефон',
+    )
+    comment = models.TextField(
+        'комментарий',
+        blank=True
     )
 
     objects = OrderQuerySer.as_manager()
