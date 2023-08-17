@@ -4,7 +4,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django.db.models import Sum, F
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-
+from django.utils import timezone
 
 class Restaurant(models.Model):
     name = models.CharField(
@@ -173,6 +173,21 @@ class Order(models.Model):
     comment = models.TextField(
         'комментарий',
         blank=True
+    )
+    registrated_at = models.DateTimeField(
+        'дата оформления заказа',
+        default=timezone.now,
+        blank=True
+    )
+    called_at = models.DateTimeField(
+        'дата звонка',
+        blank=True,
+        null=True
+    )
+    delivered_at = models.DateTimeField(
+        'дата доставки',
+        blank=True,
+        null=True
     )
 
     objects = OrderQuerySer.as_manager()
