@@ -1,3 +1,7 @@
+import requests
+
+from django.conf import settings
+from geopy import distance
 from django import forms
 from django.shortcuts import redirect, render
 from django.views import View
@@ -7,7 +11,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
 
-from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
+from foodcartapp.models import Product, Restaurant, Order
 
 
 class Login(forms.Form):
@@ -59,7 +63,27 @@ class LogoutView(auth_views.LogoutView):
 
 
 def is_manager(user):
+
     return user.is_staff  # FIXME replace with specific permission
+
+
+def fetch_coordinates(apikey, address):
+    base_url = "https://geocode-maps.yandex.ru/1.x"
+    response = requests.get(base_url, params={
+        "geocode": address,
+        "apikey": apikey,
+        "format": "json",
+    })
+    response.raise_for_status()
+    found_places = response.json()['response']['GeoObjectCollection']['featureMember']
+
+    if not found_places:
+        return None
+
+    most_relevant = found_places[0]
+    lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
+
+    return lon, lat
 
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
@@ -90,9 +114,31 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
+    yandex_token = settings.YANDEX_TOKEN
+
     order_items = Order.objects.exclude(status='Завершен').order_price()
     for item in order_items:
         item.available_restaurants = item.process_order()
+
+        item.restaurants_with_distance = []
+
+        geo_client = fetch_coordinates(yandex_token, item.address)
+        if geo_client is None:
+            continue
+
+        for restaurant in item.available_restaurants:
+            geo_restaurant = fetch_coordinates(yandex_token, restaurant.address)
+            if geo_restaurant is None:
+                continue
+
+            distance_km = round(distance.distance(geo_client, geo_restaurant).km, 3)
+
+            item.restaurants_with_distance.append({
+                'restaurant': restaurant,
+                'distance': distance_km
+            })
+
+        item.restaurants_with_distance = sorted(item.restaurants_with_distance, key=lambda x: x['distance'])
     return render(request, template_name='order_items.html', context={
         'order_items': order_items,
     })

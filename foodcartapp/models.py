@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
+
 class Restaurant(models.Model):
     name = models.CharField(
         'название',
