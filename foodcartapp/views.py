@@ -3,6 +3,7 @@ from django.templatetags.static import static
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError, ModelSerializer
+from django.db import transaction
 
 from .models import Product, Order, OrderElements
 
@@ -73,6 +74,7 @@ class OrderSerializer(ModelSerializer):
         fields = ['address', 'firstname', 'lastname', 'phonenumber', 'products']
 
 
+@transaction.atomic
 @api_view(['POST'])
 def register_order(request):
     try:
