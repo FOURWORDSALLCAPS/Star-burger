@@ -141,6 +141,21 @@ def validate_price(value):
 
 
 class Order(models.Model):
+
+    class ChoicesStatus(models.TextChoices):
+        COMPLETED = 'Завершен', 'Завершен'
+        ON_MY_WAY = 'В пути', 'В пути'
+        PROGRESS = 'Готовится', 'Готовится'
+        ACCEPTED = 'Принят', 'Принят'
+        RAW = 'Необработанный', 'Необработанный'
+
+    status = models.CharField(
+        'статус',
+        default=ChoicesStatus.RAW,
+        max_length=50,
+        choices=ChoicesStatus.choices,
+        db_index=True
+    )
     address = models.CharField(
         'адрес',
         max_length=100,
