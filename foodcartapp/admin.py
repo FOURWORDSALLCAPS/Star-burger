@@ -115,16 +115,29 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 @admin.register(Order)
-class ProductAdmin(admin.ModelAdmin):
+class OrderAdmin(admin.ModelAdmin):
     list_display = [
         'firstname',
         'lastname',
         'address',
         'phonenumber',
+        'assigned_restaurant'
+    ]
+    list_editable = [
+        'assigned_restaurant',
     ]
     inlines = [
         OrderElementsInline
     ]
+
+    def save_model(self, request, obj, form, change):
+        if 'status' in form.changed_data:
+            obj.save()
+        elif obj.assigned_restaurant:
+            obj.status = 'Готовится'
+        else:
+            obj.status = 'Необработанный'
+            obj.save()
 
     def response_post_save_change(self, request, obj):
         res = super().response_post_save_change(request, obj)
