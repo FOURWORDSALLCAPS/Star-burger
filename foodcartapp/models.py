@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
 from django.db.models import Sum, F
 from django.core.exceptions import ValidationError
@@ -259,7 +259,6 @@ class OrderElements(models.Model):
         max_digits=5,
         decimal_places=2,
         validators=[validate_price, MinValueValidator(0)],
-        null=True
     )
 
     class Meta:
