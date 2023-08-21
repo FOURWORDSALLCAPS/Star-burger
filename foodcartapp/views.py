@@ -65,18 +65,12 @@ def product_list_api(request):
 @api_view(['POST'])
 def register_order(request):
     try:
-        order = request.data
-        if not order['products']:
-            raise ValidationError('Expects products field be a list')
-        serializer = OrderSerializer(data=order)
+        serializer = OrderSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        products = serializer.validated_data['products']
-        new_order = Order.objects.create(
-            address=serializer.validated_data['address'],
-            firstname=serializer.validated_data['firstname'],
-            lastname=serializer.validated_data['lastname'],
-            phonenumber=serializer.validated_data['phonenumber'],
-        )
+
+        products = serializer.validated_data.pop('products')
+        new_order = serializer.create(serializer.validated_data)
+
         for product in products:
             product_obj = product['product']
             OrderElements.objects.create(
