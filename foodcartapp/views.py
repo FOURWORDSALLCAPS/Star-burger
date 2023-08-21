@@ -2,8 +2,9 @@ from django.http import JsonResponse
 from django.templatetags.static import static
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.serializers import ValidationError, ModelSerializer
+from rest_framework.serializers import ValidationError
 from django.db import transaction
+from serializers import OrderSerializer, OrderElementsSerializer
 
 from .models import Product, Order, OrderElements
 
@@ -58,20 +59,6 @@ def product_list_api(request):
         'ensure_ascii': False,
         'indent': 4,
     })
-
-
-class OrderElementsSerializer(ModelSerializer):
-    class Meta:
-        model = OrderElements
-        fields = ['product', 'quantity']
-
-
-class OrderSerializer(ModelSerializer):
-    products = OrderElementsSerializer(many=True)
-
-    class Meta:
-        model = Order
-        fields = ['address', 'firstname', 'lastname', 'phonenumber', 'products']
 
 
 @transaction.atomic
