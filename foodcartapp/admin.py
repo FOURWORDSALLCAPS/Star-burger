@@ -154,4 +154,6 @@ class OrderAdmin(admin.ModelAdmin):
             next_url = request.GET['next']
             if is_valid_url(next_url):
                 return HttpResponseRedirect(next_url)
+            else:
+                return res
         return res
