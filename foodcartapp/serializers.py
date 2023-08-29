@@ -9,12 +9,6 @@ class OrderElementsSerializer(ModelSerializer):
         fields = ['product', 'quantity']
 
 
-def validate_products(value):
-    if value:
-        return value
-    raise ValidationError('Expects products field to be a non-empty list')
-
-
 class OrderSerializer(ModelSerializer):
     products = OrderElementsSerializer(many=True)
 
