@@ -54,12 +54,19 @@ python -m venv venv
 pip install -r requirements.txt
 ```
 
-Определите переменную окружения `SECRET_KEY`. Создать файл `.env` в каталоге `star_burger/` и положите туда такой код:
+Определите переменную окружения `SECRET_KEY` и POSTGRESQL_PASSWORD. Создать файл `.env` в каталоге `star_burger/` и положите туда такой код:
+
 ```sh
 SECRET_KEY=django-insecure-0if40nf4nf93n4
 ```
 
-Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
+Настроить postgresql:
+
+```sh
+sudo apt-get update
+sudo apt-get install python-pip python-dev libpq-dev postgresql postgresql-contrib
+```
+Далее по [гайду](https://www.digitalocean.com/community/tutorials/how-to-use-postgresql-with-your-django-application-on-ubuntu-14-04)
 
 ```sh
 python manage.py migrate
@@ -148,6 +155,7 @@ Parcel будет следить за файлами в каталоге `bundle
 - `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
 - `ROLLBAR_TOKEN` — [см. документацию Rollbar](https://rollbar.com/)
+- `POSTGRESQL_PASSWORD ` — [см. туториал Postgres](https://www.digitalocean.com/community/tutorials/how-to-use-postgresql-with-your-django-application-on-ubuntu-14-04)
  
 ## Цели проекта
 

@@ -14,6 +14,7 @@ YANDEX_TOKEN = env('YANDEX_TOKEN')
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', False)
 ROLLBAR_TOKEN = env('ROLLBAR_TOKEN')
+POSTGRESQL_PASSWORD = env('POSTGRESQL_PASSWORD')
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
 
@@ -85,7 +86,8 @@ MEDIA_URL = '/media/'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default='sqlite:////{0}'.format(os.path.join(BASE_DIR, 'db.sqlite3'))
+        default=f'postgres://starburgeruser:{POSTGRESQL_PASSWORD}@localhost:5432/starburger',
+        engine='django.db.backends.postgresql_psycopg2',
     )
 }
 
