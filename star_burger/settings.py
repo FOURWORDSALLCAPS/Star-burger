@@ -14,7 +14,8 @@ YANDEX_TOKEN = env('YANDEX_TOKEN')
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', False)
 ROLLBAR_TOKEN = env('ROLLBAR_TOKEN')
-POSTGRESQL_PASSWORD = env('POSTGRESQL_PASSWORD')
+DATABASE_URL = env('DATABASE_URL')
+ROLLBAR_ENVIRONMENT = env('ROLLBAR_ENVIRONMENT')
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
 
@@ -86,7 +87,7 @@ MEDIA_URL = '/media/'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=f'postgres://starburgeruser:{POSTGRESQL_PASSWORD}@localhost:5432/starburger',
+        default=DATABASE_URL,
         engine='django.db.backends.postgresql_psycopg2',
     )
 }
@@ -128,9 +129,10 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "bundles"),
 ]
 
-ROLLBAR = {
-    'access_token': ROLLBAR_TOKEN,
-    'environment': 'development' if DEBUG else 'production',
-    'code_version': '1.0',
-    'root': BASE_DIR,
-}
+if ROLLBAR_TOKEN:
+    ROLLBAR = {
+        'access_token': ROLLBAR_TOKEN,
+        'environment':  ROLLBAR_ENVIRONMENT or 'development',
+        'code_version': '1.0',
+        'root': BASE_DIR,
+    }
