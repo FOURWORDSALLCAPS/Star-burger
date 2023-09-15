@@ -43,7 +43,7 @@ echo "Собираем статику"
 venv/bin/python manage.py collectstatic --noinput
 
 echo "Выполняем миграцию"
-venv/bin/python manage.py migrate
+venv/bin/python manage.py migrate --noinput
 
 echo "Перезапускаем systemd"
 systemctl restart starburger.service

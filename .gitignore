@@ -123,6 +123,10 @@ venv.bak/
 .spyderproject
 .spyproject
 
+# Static
+server.py
+staticfiles/
+
 # Rope project settings
 .ropeproject
 
