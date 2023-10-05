@@ -1,0 +1,10 @@
+FROM python:3.9.18-alpine
+
+WORKDIR /opt/star-burger
+
+COPY package*.json ./
+COPY bundles-src ./bundles-src/
+
+RUN npm install && npm ci --dev
+
+RUN ./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"

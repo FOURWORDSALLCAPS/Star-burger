@@ -6,3 +6,6 @@ django-phonenumber-field[phonenumbers]==6.3.0
 djangorestframework==3.14.0
 requests==2.31.0
 geopy==2.3.0
+rollbar==0.16.3
+psycopg2-binary==2.9.6
+psycopg2==2.9.6

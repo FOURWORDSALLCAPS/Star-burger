@@ -1,0 +1,13 @@
+FROM python:3.9.18-alpine
+
+WORKDIR /star-burger
+
+COPY requirements.txt .
+
+RUN pip install --upgrade pip && pip install -r requirements.txt && pip install gunicorn
+
+COPY . .
+
+ENV DJANGO_SETTINGS_MODULE=star_burger.settings
+
+CMD ["gunicorn","-b","127.0.0.1:8081","-w","4","star_burger.wsgi:application"]
