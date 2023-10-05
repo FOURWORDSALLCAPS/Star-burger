@@ -40,7 +40,7 @@ python --version
 ```
 **Важно!** Версия Python должна быть не ниже 3.6.
 
-Возможно, вместо команды `python` здесь и в остальных инструкциях этого README придётся использовать `python3`. Зависит это от операционной системы и от того, установлен ли у вас Python старой второй версии. 
+Возможно, вместо команды `python` здесь и в остальных инструкциях этого README придётся использовать `python3`. Зависит это от операционной системы и от того, установлен ли у вас Python старой второй версии.
 
 В каталоге проекта создайте виртуальное окружение:
 ```sh
@@ -162,6 +162,22 @@ Bash-скрипт на сервере сделает следующее:
 - Сообщит об успешном завершении деплоя
 - Упадёт, в случае ошибки, дальше не пойдёт
 
+## Как запустить сборку Docker
+
+Установите [Docker](https://docs.docker.com/engine/install/) и [Docker Compose](https://docs.docker.com/compose/install/).
+
+Что понадобится:
+- Должны быть сертификаты SSL для домена
+- Создана база данных Postgres
+
+Склонируйте репозиторий:
+```sh
+git clone https://github.com/devmanorg/star-burger.git
+```
+Запустите скрипт .sh:
+```sh
+./script_star_burger_with_docker_compose.sh
+```
 
 ## Как запустить prod-версию сайта
 
@@ -178,7 +194,7 @@ Bash-скрипт на сервере сделает следующее:
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
 - `ROLLBAR_TOKEN` — [см. документацию Rollbar](https://rollbar.com/)
 - `POSTGRESQL_PASSWORD ` — [см. туториал Postgres](https://www.digitalocean.com/community/tutorials/how-to-use-postgresql-with-your-django-application-on-ubuntu-14-04)
- 
+
 ## Цели проекта
 
 Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org). За основу был взят код проекта [FoodCart](https://github.com/Saibharath79/FoodCart).
